@@ -1,0 +1,35 @@
+//@version=5
+// strategy intent: EMA 9/21 crossover on MNQ 5m, ATR×2 initial stop, 1.5R fixed target,
+// flip-on-opposite-cross. Hand-written reference Pine used by the week 2-3 smoke test
+// until the schema → Pine generator lands (week 6+).
+strategy(title="MNQ EMA Cross (9/21)", overlay=true, initial_capital=50000, default_qty_type=strategy.fixed, default_qty_value=1, pyramiding=0, commission_type=strategy.commission.cash_per_contract, commission_value=0.62, slippage=1, process_orders_on_close=true)
+
+emaFastLen = input.int(9,  "EMA fast length", minval=2)
+emaSlowLen = input.int(21, "EMA slow length", minval=3)
+atrLen     = input.int(14, "ATR length",      minval=2)
+atrMult    = input.float(2.0, "ATR stop multiplier", minval=0.1, step=0.1)
+rrRatio    = input.float(1.5, "Take-profit R-multiple", minval=0.1, step=0.1)
+
+emaFast = ta.ema(close, emaFastLen)
+emaSlow = ta.ema(close, emaSlowLen)
+atrVal  = ta.atr(atrLen)
+
+longSignal  = ta.crossover(emaFast,  emaSlow)
+shortSignal = ta.crossunder(emaFast, emaSlow)
+
+if longSignal
+    stopDist  = atrVal * atrMult
+    stopPrice = close - stopDist
+    tpPrice   = close + stopDist * rrRatio
+    strategy.entry("long", strategy.long)
+    strategy.exit("long-exit", from_entry="long", stop=stopPrice, limit=tpPrice)
+
+if shortSignal
+    stopDist  = atrVal * atrMult
+    stopPrice = close + stopDist
+    tpPrice   = close - stopDist * rrRatio
+    strategy.entry("short", strategy.short)
+    strategy.exit("short-exit", from_entry="short", stop=stopPrice, limit=tpPrice)
+
+plot(emaFast, "EMA fast", color=color.new(color.orange, 0))
+plot(emaSlow, "EMA slow", color=color.new(color.blue, 0))

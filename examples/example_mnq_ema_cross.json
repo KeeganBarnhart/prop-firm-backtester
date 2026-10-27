@@ -1,0 +1,36 @@
+{
+  "schema_version": "0.1.0",
+  "id": "mnq-ema-cross-001",
+  "name": "MNQ EMA Cross (5m)",
+  "description": "EMA(9) / EMA(21) crossover on MNQ 5m. ATR(14) × 2 stop, 1.5R target. Reference real-engine demo strategy running on the bundled MNQ 5m seed data.",
+  "market": {
+    "instrument": "MNQ",
+    "instrument_type": "futures",
+    "timeframe": "5m",
+    "session_filter": { "type": "always" }
+  },
+  "indicators": [
+    { "id": "ema_fast", "type": "EMA", "params": { "source": "close", "length": 9 } },
+    { "id": "ema_slow", "type": "EMA", "params": { "source": "close", "length": 21 } },
+    { "id": "atr_14",   "type": "ATR", "params": { "length": 14 } }
+  ],
+  "entry": {
+    "long":  { "type": "cross_above", "left": "ema_fast", "right": "ema_slow" },
+    "short": { "type": "cross_below", "left": "ema_fast", "right": "ema_slow" }
+  },
+  "exit": {
+    "stop_loss":   { "type": "atr", "atr_length": 14, "atr_multiplier": 2.0 },
+    "take_profit": { "type": "rr", "ratio": 1.5 },
+    "trailing":    null,
+    "time_stop":   null,
+    "signal_exit": "opposite"
+  },
+  "risk": {
+    "model": "fixed_fractional",
+    "risk_per_trade": 0.01,
+    "max_concurrent_positions": 1
+  },
+  "metadata": {
+    "source_format": "manual"
+  }
+}

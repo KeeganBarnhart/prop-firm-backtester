@@ -1,0 +1,36 @@
+id: tradeify_select_50k
+name: Tradeify Select 50K
+account_size: 50000
+currency: USD
+
+# Rules — hard filters applied by the prop-firm rule engine
+rules:
+  daily_loss_limit:
+    enabled: false
+  trailing_drawdown:
+    enabled: true
+    amount: 2000
+    type: eod          # eod = end-of-day; intraday = mark-to-market
+    locks_at: initial_balance + profit_target
+  profit_target:
+    amount: 3000
+    must_hit_to_pass: true
+  min_trading_days: 0
+  consistency_rule:
+    enabled: false
+  scaling_plan:
+    enabled: false
+
+# Payout — informs the "payout speed" component of survival score
+payout:
+  first_payout_after_days: 14
+  first_payout_min_winning_days: 5
+  payout_cadence_days: 14
+  profit_split: 0.90
+
+# Ranking weights for the composite survival score (sum to 1.0)
+score_weights:
+  survival_probability: 0.55
+  expected_payout_speed: 0.20
+  expected_net_profit:   0.15
+  drawdown_headroom:     0.10

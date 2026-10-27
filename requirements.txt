@@ -1,0 +1,5 @@
+numpy
+pandas
+pydantic>=2
+PyYAML
+pytest
